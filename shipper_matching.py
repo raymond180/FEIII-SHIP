@@ -6,7 +6,10 @@ from scipy.sparse import csr_matrix
 import sparse_dot_topn.sparse_dot_topn as ct
 import time
 
-def shipper_matching():
+from Levenshtein import distance,ratio
+import itertools
+
+def get_shipper():
     usecols = ['identifier', 'shipper_party_name', 'shipper_party_address_1',
            'shipper_party_address_2', 'shipper_party_address_3',
            'shipper_party_address_4', 'city', 'state_province', 'zip_code',
@@ -18,12 +21,11 @@ def shipper_matching():
            'country_code':'category'}
 
     data = pd.read_csv('https://obj.umiacs.umd.edu/feiiiship/AMSShippers-2018.zip',usecols=usecols,dtype=dtype,compression='zip')
+    return data
 
-    data['shipper_party_name'].value_counts().head()
+def shipper_matching():
+    data = get_shipper()
 
-    data.loc[data['shipper_party_name'].str.contains('dhl',case=False,regex=False,na=False)]
-
-    
     def ngrams(string, n=3):
         string = re.sub(r'[,-./]|\sBD',r'', string)
         ngrams = zip(*[string[i:] for i in range(n)])
@@ -94,5 +96,21 @@ def shipper_matching():
     matches_df = get_matches_df(matches, company_names, top=300000)
     matches_df.to_pickle('matches_df.pkl')
     
+def match_by_levenshtein():
+    def apply_distance(col1,col2):
+        return distance(col1,col2)
+    apply_distance_vectorize = np.vectorize(apply_distance)
+    def apply_ratio(col1,col2):
+        return ratio(col1,col2)
+    apply_ratio_vectorize = np.vectorize(apply_ratio)
+    
+    data = get_shipper()
+    shipper = pd.Series(data['shipper_party_name'].unique()).dropna()
+    
+    permute_shipper = pd.DataFrame(list(itertools.product(*shipper.values)), columns=['left', 'right'])
+    permute_shipper['levenshtein_ratio'] = apply_ratio_vectorize(permute_shipper['left'].values,permute_shipper['right'].values)
+    permute_shipper = permute_shipper[permute_shipper['levenshtein_ratio']>=0.6]
+    permute_shipper.to_pickle('permute_shipper.pkl')
+    
 if __name__ == "__main__":
-    shipper_matching()
+    match_by_levenshtein()
