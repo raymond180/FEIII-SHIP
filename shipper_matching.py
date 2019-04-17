@@ -1,10 +1,12 @@
 import pandas as pd
 import numpy as np
+import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from scipy.sparse import csr_matrix
+import sparse_dot_topn.sparse_dot_topn as ct
+import time
 
 def shipper_matching():
-    import pandas as pd
-    import numpy as np
-
     usecols = ['identifier', 'shipper_party_name', 'shipper_party_address_1',
            'shipper_party_address_2', 'shipper_party_address_3',
            'shipper_party_address_4', 'city', 'state_province', 'zip_code',
@@ -21,20 +23,15 @@ def shipper_matching():
 
     data.loc[data['shipper_party_name'].str.contains('dhl',case=False,regex=False,na=False)]
 
-    import re
+    
     def ngrams(string, n=3):
         string = re.sub(r'[,-./]|\sBD',r'', string)
         ngrams = zip(*[string[i:] for i in range(n)])
         return [''.join(ngram) for ngram in ngrams]
 
-    from sklearn.feature_extraction.text import TfidfVectorizer
-
     company_names = pd.Series(data['shipper_party_name'].unique()).dropna()
     vectorizer = TfidfVectorizer(min_df=1, analyzer=ngrams)
     tf_idf_matrix = vectorizer.fit_transform(company_names)
-
-    from scipy.sparse import csr_matrix
-    import sparse_dot_topn.sparse_dot_topn as ct
 
     def awesome_cossim_top(A, B, ntop, lower_bound=0):
         # force A and B as a CSR matrix.
@@ -64,8 +61,7 @@ def shipper_matching():
             indptr, indices, data)
 
         return csr_matrix((data,indices,indptr),shape=(M,N))
-
-    import time
+    
     t1 = time.time()
     matches = awesome_cossim_top(tf_idf_matrix, tf_idf_matrix.transpose(), 10, 0.8)
     t = time.time()-t1
@@ -98,5 +94,5 @@ def shipper_matching():
     matches_df = get_matches_df(matches, company_names, top=300000)
     matches_df.to_pickle('matches_df.pkl')
     
-if "__name__" == "__main__":
+if __name__ == "__main__":
     shipper_matching()
