@@ -117,7 +117,7 @@ def match_by_levenshtein():
     shipper = pd.Series(data['shipper_party_name'].str.replace(',','',regex=False).str.replace('.','',regex=False).unique()).dropna()
     shift_stpes = [i for i in range(1,len(shipper))]
     print('starting multiprocessing levenshtein ratio...')
-    with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+    with multiprocessing.get_context('spawn').Pool(processes=multiprocessing.cpu_count()) as pool:
         try:
             pool_outputs = pool.starmap(multiprocess_apply_ratio, list(zip(itertools.repeat(shipper),shift_stpes)))
         finally:
