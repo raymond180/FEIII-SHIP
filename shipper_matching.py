@@ -7,6 +7,7 @@ import sparse_dot_topn.sparse_dot_topn as ct
 import time
 
 from Levenshtein import distance,ratio
+import multiprocessing
 import itertools
 
 def get_shipper():
@@ -95,22 +96,36 @@ def shipper_matching():
 
     matches_df = get_matches_df(matches, company_names, top=300000)
     matches_df.to_pickle('matches_df.pkl')
-    
-def match_by_levenshtein():
-    def apply_distance(col1,col2):
-        return distance(col1,col2)
-    apply_distance_vectorize = np.vectorize(apply_distance)
-    def apply_ratio(col1,col2):
-        return ratio(col1,col2)
+
+def apply_distance(col1,col2):
+    return distance(col1,col2)
+
+def apply_ratio(col1,col2):
+    return ratio(col1,col2)
+
+def multiprocess_apply_ratio(shipper,step=1):
+    #apply_distance_vectorize = np.vectorize(apply_distance)
     apply_ratio_vectorize = np.vectorize(apply_ratio)
-    
+    result = pd.DataFrame({'left':shipper.values,'right':np.roll(shipper,step),'score':apply_ratio_vectorize(shipper.values,np.roll(shipper,step))})
+    result = result[result['score']>=0.85]
+    print('shift step {} done'.format(step))
+    return result
+
+def match_by_levenshtein():
+    print('getting shipper data...')
     data = get_shipper()
-    shipper = pd.Series(data['shipper_party_name'].unique()).dropna()
-    
-    permute_shipper = pd.DataFrame(list(itertools.product(*shipper.values)), columns=['left', 'right'])
-    permute_shipper['levenshtein_ratio'] = apply_ratio_vectorize(permute_shipper['left'].values,permute_shipper['right'].values)
-    permute_shipper = permute_shipper[permute_shipper['levenshtein_ratio']>=0.6]
-    permute_shipper.to_pickle('permute_shipper.pkl')
+    shipper = pd.Series(data['shipper_party_name'].str.replace(',','',regex=False).str.replace('.','',regex=False).unique()).dropna()
+    shift_stpes = [i for i in range(1,len(shipper))]
+    print('starting multiprocessing levenshtein ratio...')
+    with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+        try:
+            pool_outputs = pool.starmap(multiprocess_apply_ratio, list(zip(itertools.repeat(shipper),shift_stpes)))
+        finally:
+            pool.close()
+            pool.join()
+    print('concating data frame....')
+    pd.concat(pool_outputs).to_pickle('match_by_levenshtein.pkl')
+    print('match_by_levenshtein done!!')
     
 if __name__ == "__main__":
     match_by_levenshtein()
