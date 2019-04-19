@@ -108,14 +108,15 @@ def multiprocess_apply_ratio(shipper,step=1):
     apply_ratio_vectorize = np.vectorize(apply_ratio)
     result = pd.DataFrame({'left':shipper.values,'right':np.roll(shipper,step),'score':apply_ratio_vectorize(shipper.values,np.roll(shipper,step))})
     result = result[result['score']>=0.85]
-    print('shift step {} done'.format(step))
+    #print('shift step {} done'.format(step))
     return result
 
-def match_by_levenshtein():
+def match_by_levenshtein(start_index,end_index,file_name):
     print('getting shipper data...')
     data = get_shipper()
     shipper = pd.Series(data['shipper_party_name'].str.replace(',','',regex=False).str.replace('.','',regex=False).unique()).dropna()
-    shift_stpes = [i for i in range(1,len(shipper))]
+    print('shift steps {} to {} start...'.format(start_index,end_index))
+    shift_stpes = [i for i in range(start_index,end_index+1)]
     print('starting multiprocessing levenshtein ratio...')
     with multiprocessing.get_context('spawn').Pool(processes=multiprocessing.cpu_count()) as pool:
         try:
@@ -123,9 +124,13 @@ def match_by_levenshtein():
         finally:
             pool.close()
             pool.join()
-    print('concating data frame....')
-    pd.concat(pool_outputs).to_pickle('match_by_levenshtein.pkl')
-    print('match_by_levenshtein done!!')
+    print('concating data frame for steps {} to {}...'.format(start_index,end_index))
+    pd.concat(pool_outputs).to_pickle('match_by_levenshtein/{}'.format(file_name),compression='zip')
+    print('steps {} to {} done!!'.format(start_index,end_index))
     
 if __name__ == "__main__":
-    match_by_levenshtein()
+    import sys
+    start_index = int(sys.argv[1])
+    end_index = int(sys.argv[2])
+    file_name = str(sys.argv[3])
+    match_by_levenshtein(start_index,end_index,file_name)
