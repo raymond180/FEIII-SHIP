@@ -10,7 +10,7 @@ from Levenshtein import distance,ratio
 import multiprocessing
 import itertools
 
-def get_shipper():
+def get_shipper_online():
     usecols = ['identifier', 'shipper_party_name', 'shipper_party_address_1',
            'shipper_party_address_2', 'shipper_party_address_3',
            'shipper_party_address_4', 'city', 'state_province', 'zip_code',
@@ -22,6 +22,20 @@ def get_shipper():
            'country_code':'category'}
 
     data = pd.read_csv('https://obj.umiacs.umd.edu/feiiiship/AMSShippers-2018.zip',usecols=usecols,dtype=dtype,compression='zip')
+    return data
+
+def get_shipper_local():
+    usecols = ['identifier', 'shipper_party_name', 'shipper_party_address_1',
+           'shipper_party_address_2', 'shipper_party_address_3',
+           'shipper_party_address_4', 'city', 'state_province', 'zip_code',
+           'country_code']
+
+    dtype = {'identifier':str,'shipper_party_name':str, 'shipper_party_address_1':str,
+           'shipper_party_address_2':str, 'shipper_party_address_3':str,
+           'shipper_party_address_4':str, 'city':'category', 'state_province':'category', 'zip_code':'category',
+           'country_code':'category'}
+
+    data = pd.read_csv('AMSShippers-2018.zip',usecols=usecols,dtype=dtype,compression='zip')
     return data
 
 def shipper_matching():
@@ -113,7 +127,7 @@ def multiprocess_apply_ratio(shipper,step=1):
 
 def match_by_levenshtein(start_index,end_index,file_name):
     print('getting shipper data...')
-    data = get_shipper()
+    data = get_shipper_local()
     shipper = pd.Series(data['shipper_party_name'].str.replace(',','',regex=False).str.replace('.','',regex=False).unique()).dropna()
     print('shift steps {} to {} start...'.format(start_index,end_index))
     shift_stpes = [i for i in range(start_index,end_index+1)]
