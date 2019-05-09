@@ -64,4 +64,4 @@ if __name__ == "__main__":
     start_index = int(sys.argv[1])
     end_index = int(sys.argv[2])
     file_name = str(sys.argv[3])
-    match_by_levenshtein(file_name)
+    match_by_levenshtein(start_index,end_index,file_name)
