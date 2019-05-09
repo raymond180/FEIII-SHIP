@@ -30,7 +30,8 @@ def match_by_levenshtein(start_index,end_index,file_name):
     print('getting shipper data...')
     Enigma = get_Enigma()
     #Enigma = Enigma.rename(columns={'company_name':'E_com_name','company_address':'E_com_address'})
-    Enigma = Enigma.dropna(subset='shipper_party_name')
+    Enigma = Enigma.dropna(subset=['shipper_party_name'])
+    Enigma = Enigma.reset_index(drop=True)
     # Clean Enigma and Camaras and turn them into series
     replace_char = ",.=_-><\'\":;()!~"
     replace_dict = {key:value for (key,value) in zip(replace_char,itertools.repeat(''))}
