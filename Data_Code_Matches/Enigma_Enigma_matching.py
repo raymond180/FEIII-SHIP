@@ -53,7 +53,7 @@ def match_by_levenshtein(start_index,end_index,file_name):
     columns_left = ['identifier_left','shipper_party_name_left','cl_shipper_party_name_left', 'shipper_address_left','harmonized_number_left'] 
     columns_right = ['identifier_right','shipper_party_name_right','cl_shipper_party_name_right', 'shipper_address_right','harmonized_number_right']
     # zip the columns
-    columns = [i for j in zip(columns_left,columns_right) for i in j]
+    columns = [i for j in zip(columns_left,columns_right) for i in j] + ['name_score','address_score']
     result = result[columns]
     # Check if folder match_by_levenshtein exists, create it if not
     if not os.path.isdir('match_by_levenshtein/'):
