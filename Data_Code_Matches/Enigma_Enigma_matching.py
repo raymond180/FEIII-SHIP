@@ -13,7 +13,7 @@ def get_Enigma():
     return pd.read_csv('export_sample_countries_challenge_with_orgs.csv.zip',usecols=usecols,dtype=dtype,compression='zip')
 
 def apply_ratio(col1,col2):
-    if np.isnan(col1) or np.isnan(col2):
+    if pd.isnull(col1) or pd.isnull(col2):
         return np.nan
     else:
         return ratio(col1,col2)
