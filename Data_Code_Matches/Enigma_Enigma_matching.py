@@ -13,7 +13,10 @@ def get_Enigma():
     return pd.read_csv('export_sample_countries_challenge_with_orgs.csv.zip',usecols=usecols,dtype=dtype,compression='zip')
 
 def apply_ratio(col1,col2):
-    return ratio(col1,col2)
+    if not col1 or not col2:
+        return np.nan
+    else:
+        return ratio(col1,col2)
 
 def multiprocess_apply_ratio(Enigma,step):
     #apply_distance_vectorize = np.vectorize(apply_distance)
