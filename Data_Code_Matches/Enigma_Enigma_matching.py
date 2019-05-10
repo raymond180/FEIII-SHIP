@@ -39,6 +39,8 @@ def match_by_levenshtein(start_index,end_index,file_name):
     replace_char = ",.=_-><\'\":;()!~"
     replace_dict = {key:value for (key,value) in zip(replace_char,itertools.repeat(''))}
     Enigma['cl_shipper_party_name'] = Enigma['shipper_party_name'].str.translate(str.maketrans(replace_dict))
+    Enigma = Enigma.drop_duplicates(subset=['cl_shipper_party_name'])
+    Enigma = Enigma.reset_index(drop=True)
     
     shift_steps = [i for i in range(start_index,end_index+1)]
     print('starting multiprocessing levenshtein ratio...')
@@ -50,13 +52,12 @@ def match_by_levenshtein(start_index,end_index,file_name):
             pool.join()
     print('multiprocessing levenshtein ratio done, concating dataframes...')
     result = pd.concat(pool_outputs,ignore_index=True)
-    result = result.drop_duplicates()
     result = result.sort_values(by=['cl_shipper_party_name_left','name_score'])
     
     columns_left = ['identifier_left','shipper_party_name_left','cl_shipper_party_name_left', 'shipper_address_left','harmonized_number_left'] 
     columns_right = ['identifier_right','shipper_party_name_right','cl_shipper_party_name_right', 'shipper_address_right','harmonized_number_right']
     # zip the columns
-    columns = [i for j in zip(columns_left,columns_right) for i in j] + ['name_score','address_score']
+    columns = ['name_score','address_score'] + [i for j in zip(columns_left,columns_right) for i in j]
     result = result[columns]
     # Check if folder match_by_levenshtein exists, create it if not
     if not os.path.isdir('match_by_levenshtein/'):
