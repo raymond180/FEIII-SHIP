@@ -44,7 +44,7 @@ def match_by_levenshtein(start_index,end_index,file_name):
     
     shift_steps = [i for i in range(start_index,end_index+1)]
     print('starting multiprocessing levenshtein ratio...')
-    with multiprocessing.get_context('spawn').Pool(processes=multiprocessing.cpu_count()) as pool:
+    with multiprocessing.get_context('spawn').Pool(processes=int(multiprocessing.cpu_count() / 2)) as pool:
         try:
             pool_outputs = pool.starmap(multiprocess_apply_ratio, list(zip(itertools.repeat(Enigma),shift_steps)))
         finally:
