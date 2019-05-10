@@ -8,7 +8,7 @@
 #SBATCH --nodes=60
 #SBATCH --ntasks=60
 #SBATCH --cpus-per-task=8
-#SBATCH --mem 16gb
+#SBATCH --mem 20gb
 
 source ~/miniconda3/bin/activate
 
