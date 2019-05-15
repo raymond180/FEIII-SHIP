@@ -10,7 +10,7 @@ import sys
 def get_Enigma():
     usecols = ['identifier','shipper_party_name', 'shipper_address','harmonized_number']
     dtype = {'identifier':str,'shipper_party_name':str,'shipper_address':str,'harmonized_number':str}
-    return pd.read_csv('export_sample_countries_challenge_with_orgs.csv.zip',usecols=usecols,dtype=dtype,compression='zip')
+    return pd.read_csv('BofL6country.zip',usecols=usecols,dtype=dtype,compression='zip')
 
 def apply_ratio(col1,col2):
     if pd.isnull(col1) or pd.isnull(col2):
