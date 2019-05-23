@@ -104,6 +104,7 @@ venv.bak/
 .mypy_cache/
 
 Data/
+LDA_model/
 
 *.xlsx
 *.docx
@@ -117,4 +118,3 @@ Data/
 *.pdf
 *.pkl
 
-Data/
