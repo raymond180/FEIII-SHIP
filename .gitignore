@@ -104,7 +104,7 @@ venv.bak/
 .mypy_cache/
 
 Data/
-LDA_model/
+LDAmodel/
 
 *.xlsx
 *.docx
