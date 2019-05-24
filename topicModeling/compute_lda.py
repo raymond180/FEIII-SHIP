@@ -2,7 +2,12 @@ import pandas as pd
 import numpy as np
 from sklearn import preprocessing
 
+import gensim
+from gensim.test.utils import datapath
+
 import itertools
+import logging
+import sys
 
 from manage_path import *
 
@@ -41,13 +46,17 @@ def process_data(data):
     data = data.dropna(subset=['shipper_party_name','harmonized_number'])
     replace_char = ",.=_-><\'\":;()!~"
     replace_dict = {key:value for (key,value) in zip(replace_char,itertools.repeat(''))}
-    data['cl_shipper_party_name'] = data['shipper_party_name'].str.translate(str.maketrans(replace_dict))
+    data['cl_shipper_party_name'] = data['shipper_party_name'].str.translate(str.maketrans(replace_dict)).values
     data = data.assign(shipper_id=(data['cl_shipper_party_name']).astype('category').cat.codes)
     data['6_harmonized_number'] = data['harmonized_number'].apply(lambda x: str(x)[0:6])
     return data
 
 def create_BoW_harmonized_shipper(data):
     bag_of_words = data.groupby(by=['6_harmonized_number','cl_shipper_party_name']).size().unstack(fill_value=0)
+    return bag_of_words
+
+def create_BoW_shipper_harmonized(data):
+    bag_of_words = data.groupby(by=['cl_shipper_party_name','6_harmonized_number']).size().unstack(fill_value=0)
     return bag_of_words
 
 def create_corpus(bag_of_words,corpus_save_name,save=True):
@@ -77,8 +86,8 @@ def load_corpus(file_name):
 
 def create_id2word(bag_of_words,id2word_save_name,save=True):
     le = preprocessing.LabelEncoder()
-    le.fit(matrix.columns)
-    transform = le.transform(matrix.columns)
+    le.fit(bag_of_words.columns)
+    transform = le.transform(bag_of_words.columns)
     inverse_transform = le.inverse_transform(transform)
     id2word = dict(zip(transform, inverse_transform))
     if save:
@@ -99,47 +108,50 @@ def load_id2word(id2word_name):
     id2word_directory = get_id2word_directory()
     id2word_save_path = id2word_directory / "{}.npy".format(id2word_name)
     # load the id2word using numpy
-    id2word = np.load(id2word_save_path).item()
+    id2word = np.load(id2word_save_path,allow_pickle=True).item()
     print("id2word loaded!!")
     return id2word
 
 def compute_lda(corpus_name,corpus,num_topics,id2word,workers=3,chunksize=10000,passes=30,iterations=400):
+    lda_save_name = "{}_{}topics".format(corpus_name,num_topics)
     logs_directory = get_logs_directory()
-    filename = "{}_{}topics.log".format(corpus_name,num_topics)
-    log_filename = logs_directory / filename
+    log_filename = logs_directory / "{}.log".format(lda_save_name)
     logging.basicConfig(filename=log_filename,format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     print("LdaMulticore Start!!")
     lda = gensim.models.ldamulticore.LdaMulticore(corpus=corpus,id2word=id2word,workers=workers, num_topics=num_topics, chunksize=chunksize, passes=passes,iterations=iterations,dtype=np.float64,random_state=1)
     print("LdaMulticore Done!!")
-    
-    model_name = "{}_{}topics".format(corpus_name,num_topics)
-    print("Saving Model as "+model_name)
+
+    print("Saving Model as "+lda_save_name)
     
     # create directory
     save_path = get_LDAModel_directory()
     # create sub-directory
-    save_path = save_path / ("./{}/".format(model_name))
+    save_path = save_path / ("./{}/".format(lda_save_name))
     create_directory(save_path)
     
-    save_path = save_path / model_name
+    save_path = save_path / lda_save_name
     save_path = datapath(str(save_path))
 
     lda.save(save_path)
     print("Model successfully save at" + save_path)
+    return lda
     
 def main():
-    corpus_name = str(input("Please enter corpus_name: "))
-    num_topics = int(input("Please enter num_topics: "))
-    workers = int(input("Please enter number of workers: "))
-    passes = int(input("Please enter number of passes: "))
-    if(corpus_name == 'matrix_1' or corpus_name == 'matrix1'):
-        corpus = load_corpus("matrix_1")
-        id2word = load_id2word("matrix_1")
+    data = read_data()
+    data = process_data(data)
+    save_name = sys.argv[1]
+    if save_name == 'harmonized_shipper':
+        bag_of_words = create_BoW_harmonized_shipper(data)
+    elif save_name == 'shipper_harmonized':
+        bag_of_words = create_BoW_shipper_harmonized(data)
     else:
-        corpus = load_corpus("matrix_1")
-        id2word = load_id2word("matrix_1")
+        print('not reconize')
+    corpus = create_corpus(bag_of_words,save_name,save=True)
+    id2word = create_id2word(bag_of_words,save_name,save=True)
+    num_topics = sys.argv[2]
+    compute_lda(save_name,corpus,num_topics,id2word)
     
-    compute_topic(corpus_name,corpus,num_topics,id2word,workers=workers,passes=passes)
+    
     
 if __name__== "__main__":
     main()
