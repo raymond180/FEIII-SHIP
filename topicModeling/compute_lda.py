@@ -40,6 +40,7 @@ def read_data(file_name='BofL6country.zip',is_zip=True,from_http=False):
     else:
         path = get_dataset_directory() / file_name
     # pandas read_csv
+    print(path)
     if is_zip:
         data= pd.read_csv(path,usecols=usecols,dtype=dtype,parse_dates=parse_dates,compression='zip')
     else:
@@ -143,7 +144,9 @@ def compute_lda(corpus_name,corpus,num_topics,id2word,workers=3,chunksize=10000,
 def main():
     from_http = bool(sys.argv[1])
     file_name= str(sys.argv[2])
-    data = read_data(from_http=from_http)
+    print(from_http)
+    print(file_name)
+    data = read_data(file_name=file_name,from_http=from_http)
     data = process_data(data)
     save_name = str(sys.argv[3])
     if save_name == 'harmonized_shipper':
