@@ -11,7 +11,7 @@ import sys
 
 from manage_path import *
 
-def read_data(file_name='BofL6country.zip',is_zip=True):
+def read_data(file_name='BofL6country.zip',is_zip=True,from_http=False):
     # Ignore 'trade_update_date', 'run_date', 'vessel_name', 'secondary_notify_party_1','container_number'
     usecols = ['identifier','port_of_unlading','estimated_arrival_date','foreign_port_of_lading'
                ,'record_status_indicator','place_of_receipt', 'port_of_destination'
@@ -34,8 +34,12 @@ def read_data(file_name='BofL6country.zip',is_zip=True):
          ,'harmonized_number':str, 'harmonized_value':'float32'
          ,'harmonized_weight':'float32','harmonized_weight_unit':'category'}
     parse_dates = ['estimated_arrival_date','actual_arrival_date']
-    #build path from file_name
-    path = get_dataset_directory() / file_name
+    # build path from file_name
+    if from_http:
+        path = file_name
+    else:
+        path = get_dataset_directory() / file_name
+    # pandas read_csv
     if is_zip:
         data= pd.read_csv(path,usecols=usecols,dtype=dtype,parse_dates=parse_dates,compression='zip')
     else:
@@ -112,7 +116,7 @@ def load_id2word(id2word_name):
     print("id2word loaded!!")
     return id2word
 
-def compute_lda(corpus_name,corpus,num_topics,id2word,workers=3,chunksize=10000,passes=30,iterations=400):
+def compute_lda(corpus_name,corpus,num_topics,id2word,workers=3,chunksize=10000,passes=60,iterations=400):
     lda_save_name = "{}_{}topics".format(corpus_name,num_topics)
     logs_directory = get_logs_directory()
     log_filename = logs_directory / "{}.log".format(lda_save_name)
@@ -137,9 +141,11 @@ def compute_lda(corpus_name,corpus,num_topics,id2word,workers=3,chunksize=10000,
     return lda
     
 def main():
-    data = read_data()
+    from_http = bool(sys.argv[1])
+    file_name= str(sys.argv[2])
+    data = read_data(from_http=from_http)
     data = process_data(data)
-    save_name = sys.argv[1]
+    save_name = str(sys.argv[3])
     if save_name == 'harmonized_shipper':
         bag_of_words = create_BoW_harmonized_shipper(data)
     elif save_name == 'shipper_harmonized':
@@ -148,7 +154,7 @@ def main():
         print('not reconize')
     corpus = create_corpus(bag_of_words,save_name,save=True)
     id2word = create_id2word(bag_of_words,save_name,save=True)
-    num_topics = sys.argv[2]
+    num_topics = int(sys.argv[4])
     compute_lda(save_name,corpus,num_topics,id2word)
     
     
