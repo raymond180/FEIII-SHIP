@@ -20,19 +20,4 @@ srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/topicModeling/compute_
 srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" shipper_harmonized_sym 20 &
 srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" shipper_harmonized_sym 30 &
 
-
-wait
-
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/topicModeling/lda_analysis.py harmonized_shipper_sym 10 &
-
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/topicModeling/lda_analysis.py shipper_harmonized_sym 10 &
-
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/topicModeling/lda_analysis.py harmonized_shipper_sym 20 &
-
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/topicModeling/lda_analysis.py shipper_harmonized_sym 20 &
-
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/topicModeling/lda_analysis.py harmonized_shipper_sym 30 &
-
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/topicModeling/lda_analysis.py shipper_harmonized_sym 30 &
-
 wait

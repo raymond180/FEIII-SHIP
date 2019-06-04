@@ -4,6 +4,8 @@ from sklearn import preprocessing
 
 import gensim
 from gensim.test.utils import datapath
+from gensim.corpora import Dictionary
+import pyLDAvis.gensim
 
 import itertools
 import logging
@@ -139,6 +141,41 @@ def compute_lda(corpus_name,corpus,num_topics,id2word,workers=3,chunksize=10000,
     lda.save(save_path)
     print("Model successfully save at" + save_path)
     return lda
+
+def save_pyldavis2html(model,corpus,dictionary,model_name,num_topics):
+    print('preparing pyLDAvis ...')
+    vis = pyLDAvis.gensim.prepare(model, corpus, dictionary, sort_topics=False)
+    print('pyLDAvis done!!!')
+    print('saving pyLDAvis to html ...')
+    result_directory = get_result_directory()
+    if not result_directory.is_dir():
+        create_directory(result_directory)
+    file_name = result_directory / '{}_{}topics.html'.format(model_name,num_topics)
+    # Save visualization
+    pyLDAvis.save_html(vis, str(file_name))
+    print('pyLDAvis to html saved!!!')
+    
+def document_topic_distribution(corpus,bag_of_words,model,model_name,num_topics,minimum_probability=0.10):
+    print('caculating document_topic_distribution ...')
+    # minimum_probability is our threshold
+    document_topics = model.get_document_topics(corpus,minimum_probability=minimum_probability)
+    # convert document_topics, which is a gesim corpus, to numpy array
+    document_topic_distribution_numpy = gensim.matutils.corpus2dense(document_topics,num_terms=int(num_topics))
+    # need to transpose it because gensim represents documents on columns token on index
+    document_topic_distribution_numpy = np.transpose(document_topic_distribution_numpy)
+    # combine document_topic_distribution with index from matrix and columns represents gensim topics
+    document_topic_distribution_pandas = pd.DataFrame(data=document_topic_distribution_numpy,index=bag_of_words.index,columns=np.arange(1,int(num_topics)+1,1))
+    # Only get the top three topics per document
+    #document_topic_distribution_pandas = document_topic_distribution_pandas[document_topic_distribution_pandas.rank(axis=1,method='max',ascending=False) <= 3]
+    print('caculating document_topic_distribution done!!!')
+    # Save the dataframe to csv
+    print('saving document_topic_distribution...')
+    result_directory = get_result_directory()
+    if not result_directory.is_dir():
+        create_directory(result_directory)
+    file_name = result_directory / '{}_{}topics.csv'.format(model_name,num_topics)
+    document_topic_distribution_pandas.to_csv(file_name)
+    print('document_topic_distribution saved!!!')
     
 def main():
     from_http = bool(int(sys.argv[1]))
@@ -163,7 +200,13 @@ def main():
     corpus = create_corpus(bag_of_words,save_name,save=True)
     id2word = create_id2word(bag_of_words,save_name,save=True)
     num_topics = int(sys.argv[4])
-    compute_lda(save_name,corpus,num_topics,id2word,alpha=alpha)
+    model = compute_lda(save_name,corpus,num_topics,id2word,alpha=alpha)
+    
+    # Fro visualization
+    dictionary = Dictionary.from_corpus(corpus,id2word=id2word)
+    save_pyldavis2html(model, corpus, dictionary,save_name,num_topics)
+    # For document_topic_distribution
+    document_topic_distribution(corpus,bag_of_words,model,save_name,num_topics,minimum_probability=0.10)
     
     
     
