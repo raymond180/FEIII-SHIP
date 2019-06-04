@@ -40,7 +40,6 @@ def read_data(file_name='BofL6country.zip',is_zip=True,from_http=False):
     else:
         path = get_dataset_directory() / file_name
     # pandas read_csv
-    print(path)
     if is_zip:
         data= pd.read_csv(path,usecols=usecols,dtype=dtype,parse_dates=parse_dates,compression='zip')
     else:
@@ -117,13 +116,13 @@ def load_id2word(id2word_name):
     print("id2word loaded!!")
     return id2word
 
-def compute_lda(corpus_name,corpus,num_topics,id2word,workers=3,chunksize=10000,passes=60,iterations=400):
+def compute_lda(corpus_name,corpus,num_topics,id2word,workers=3,chunksize=10000,passes=60,iterations=400,alpha='symmetric'):
     lda_save_name = "{}_{}topics".format(corpus_name,num_topics)
     logs_directory = get_logs_directory()
     log_filename = logs_directory / "{}.log".format(lda_save_name)
     logging.basicConfig(filename=log_filename,format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     print("LdaMulticore Start!!")
-    lda = gensim.models.ldamulticore.LdaMulticore(corpus=corpus,id2word=id2word,workers=workers, num_topics=num_topics, chunksize=chunksize, passes=passes,iterations=iterations,dtype=np.float64,random_state=1)
+    lda = gensim.models.ldamulticore.LdaMulticore(corpus=corpus,id2word=id2word,workers=workers, num_topics=num_topics, chunksize=chunksize, passes=passes,iterations=iterations,dtype=np.float64,random_state=1,alpha=alpha)
     print("LdaMulticore Done!!")
 
     print("Saving Model as "+lda_save_name)
@@ -142,23 +141,29 @@ def compute_lda(corpus_name,corpus,num_topics,id2word,workers=3,chunksize=10000,
     return lda
     
 def main():
-    from_http = bool(sys.argv[1])
+    from_http = bool(int(sys.argv[1]))
     file_name= str(sys.argv[2])
-    print(from_http)
-    print(file_name)
     data = read_data(file_name=file_name,from_http=from_http)
     data = process_data(data)
     save_name = str(sys.argv[3])
-    if save_name == 'harmonized_shipper':
+    if save_name == 'harmonized_shipper_sym':
         bag_of_words = create_BoW_harmonized_shipper(data)
-    elif save_name == 'shipper_harmonized':
+        alpha = 'symmetric'
+    elif save_name == 'harmonized_shipper_asym':
+        bag_of_words = create_BoW_harmonized_shipper(data)
+        alpha = 'asymmetric'
+    elif save_name == 'shipper_harmonized_sym':
         bag_of_words = create_BoW_shipper_harmonized(data)
+        alpha = 'symmetric'
+    elif save_name == 'shipper_harmonized_asym':
+        bag_of_words = create_BoW_shipper_harmonized(data)
+        alpha = 'asymmetric'
     else:
         print('not reconize')
     corpus = create_corpus(bag_of_words,save_name,save=True)
     id2word = create_id2word(bag_of_words,save_name,save=True)
     num_topics = int(sys.argv[4])
-    compute_lda(save_name,corpus,num_topics,id2word)
+    compute_lda(save_name,corpus,num_topics,id2word,alpha=alpha)
     
     
     
