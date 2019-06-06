@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=shipper_matching
 #SBATCH --output %j.output.txt
-#SBATCH --error %j.error.txt
+#SBATCH --error %j.output.txt
 #SBATCH --time=24:00:00
 #SBATCH --qos=batch
 #SBATCH --nodes=10
@@ -12,16 +12,16 @@
 
 source ~/miniconda3/bin/activate
 
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/Data_Code_Matches/Enigma_Enigma_matching.py 1 11140 0.pkl.zip &
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/Data_Code_Matches/Enigma_Enigma_matching.py 11141 22280 1.pkl.zip &
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/Data_Code_Matches/Enigma_Enigma_matching.py 22281 33420 2.pkl.zip &
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/Data_Code_Matches/Enigma_Enigma_matching.py 33421 44560 3.pkl.zip &
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/Data_Code_Matches/Enigma_Enigma_matching.py 44561 55700 4.pkl.zip &
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/Data_Code_Matches/Enigma_Enigma_matching.py 55701 66840 5.pkl.zip &
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/Data_Code_Matches/Enigma_Enigma_matching.py 66841 77980 6.pkl.zip &
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/Data_Code_Matches/Enigma_Enigma_matching.py 77981 89120 7.pkl.zip &
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/Data_Code_Matches/Enigma_Enigma_matching.py 89121 100260 8.pkl.zip &
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/Data_Code_Matches/Enigma_Enigma_matching.py 100261 111394 9.pkl.zip &
+srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigma_Enigma_matching.py 1 11104 0.pkl.zip &
+srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigma_Enigma_matching.py 11105 22208 1.pkl.zip &
+srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigma_Enigma_matching.py 22209 33312 2.pkl.zip &
+srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigma_Enigma_matching.py 33313 44416 3.pkl.zip &
+srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigma_Enigma_matching.py 44417 55520 4.pkl.zip &
+srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigma_Enigma_matching.py 55521 66624 5.pkl.zip &
+srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigma_Enigma_matching.py 66625 77728 6.pkl.zip &
+srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigma_Enigma_matching.py 77729 88832 7.pkl.zip &
+srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigma_Enigma_matching.py 88833 99936 8.pkl.zip &
+srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigma_Enigma_matching.py 99937 111032 9.pkl.zip &
 
 
 wait

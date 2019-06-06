@@ -50,7 +50,7 @@ def read_data(file_name='BofL6country.zip',is_zip=True,from_http=False):
 
 def process_data(data):
     data = data.dropna(subset=['shipper_party_name','harmonized_number'])
-    replace_char = ",.=_-><\'\":;()!~"
+    replace_char = ",.+=_-><\'\":;()!?~/\\@#$%^&*~`[]{}"
     replace_dict = {key:value for (key,value) in zip(replace_char,itertools.repeat(''))}
     data['cl_shipper_party_name'] = data['shipper_party_name'].str.translate(str.maketrans(replace_dict)).values
     data = data.assign(shipper_id=(data['cl_shipper_party_name']).astype('category').cat.codes)

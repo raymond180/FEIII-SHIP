@@ -10,7 +10,12 @@ import sys
 def get_Enigma():
     usecols = ['identifier','shipper_party_name', 'shipper_address','harmonized_number']
     dtype = {'identifier':str,'shipper_party_name':str,'shipper_address':str,'harmonized_number':str}
-    return pd.read_csv('BofL6country.zip',usecols=usecols,dtype=dtype,compression='zip')
+    return pd.read_csv('../Data/Dataset/BofL6country.zip',usecols=usecols,dtype=dtype,compression='zip')
+
+def get_Data(url):
+    usecols = ['identifier','shipper_party_name', 'shipper_address','harmonized_number']
+    dtype = {'identifier':str,'shipper_party_name':str,'shipper_address':str,'harmonized_number':str}
+    return pd.read_csv(url,usecols=usecols,dtype=dtype,compression='zip')
 
 def apply_ratio(col1,col2):
     if pd.isnull(col1) or pd.isnull(col2):
@@ -36,7 +41,7 @@ def match_by_levenshtein(start_index,end_index,file_name):
     Enigma = Enigma.dropna(subset=['shipper_party_name'])
     Enigma = Enigma.reset_index(drop=True)
     # Clean Enigma and Camaras and turn them into series
-    replace_char = ",.=_-><\'\":;()!~"
+    replace_char = ",.+=_-><\'\":;()!?~/\\@#$%^&*~`[]{}"
     replace_dict = {key:value for (key,value) in zip(replace_char,itertools.repeat(''))}
     Enigma['cl_shipper_party_name'] = Enigma['shipper_party_name'].str.translate(str.maketrans(replace_dict))
     Enigma = Enigma.drop_duplicates(subset=['cl_shipper_party_name'])
