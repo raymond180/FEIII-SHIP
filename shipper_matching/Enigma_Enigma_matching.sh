@@ -23,5 +23,4 @@ srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigm
 srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigma_Enigma_matching.py 88833 99936 8.pkl.zip &
 srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/shipper_matching/Enigma_Enigma_matching.py 99937 111032 9.pkl.zip &
 
-
 wait

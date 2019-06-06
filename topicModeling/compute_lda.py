@@ -91,7 +91,7 @@ def process_data(data):
     
     # Merge same shipper entity of different names
     shipper_matching = match_shipper()
-    shipper_matching = shipper_matching['cl_shipper_party_name_left','cl_shipper_set_master']
+    shipper_matching = shipper_matching[['cl_shipper_party_name_left','cl_shipper_set_master']].copy()
     shipper_matching['cl_shipper_set_master'] = shipper_matching['cl_shipper_set_master'].apply(lambda x: frozenset(x))
     shipper_matching = shipper_matching.rename(columns={'cl_shipper_party_name_left':'cl_shipper_party_name'})
     data = data.merge(on='cl_shipper_party_name')
