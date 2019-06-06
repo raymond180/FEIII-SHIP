@@ -67,7 +67,7 @@ def get_match_result_directory():
     """Return path of Data/dataset direcoty, for all FINRA_TRACE dataset"""
     data_directory = get_data_directory()
     match_result_directory = data_directory / "match_result"
-    return match_result
+    return match_result_directory
 
 def get_pickle_directory():
     """Return path of Data/Pickle directory"""
