@@ -36,7 +36,9 @@ def multiprocess_apply_ratio(Enigma,step):
 
 def match_by_levenshtein(start_index,end_index,file_name):
     print('getting shipper data...')
-    Enigma = get_Enigma()
+    #Enigma = get_Enigma()
+    Enigma = get_Data("https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BillofLadingSummary-2017.zip")
+    Enigma = Enigma.append(get_Data("https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BillofLadingSummary-2018.zip"),ignore_index=True)
     #Enigma = Enigma.rename(columns={'company_name':'E_com_name','company_address':'E_com_address'})
     Enigma = Enigma.dropna(subset=['shipper_party_name'])
     Enigma = Enigma.reset_index(drop=True)
