@@ -62,7 +62,7 @@ def match_shipper():
             new_master = master_left
         return new_master
     shipper_matching = pd.read_csv(get_match_result_directory() / 'Enigma_Enigma_6countries.csv')
-    shipper_matching  = shipper_matching[(shipper_matching['name_score']>0.9) | (shipper_matching['address_score']>0.6)]
+    shipper_matching  = shipper_matching[((shipper_matching['name_score']>0.9) & (shipper_matching['address_score']>0.6)) | (shipper_matching['address_score']>0.9)]
     shipper_frozenset_vectorize = np.vectorize(shipper_frozenset)
     shipper_matching['cl_shipper_frozenset'] = shipper_frozenset_vectorize(shipper_matching['cl_shipper_party_name_left'],shipper_matching['cl_shipper_party_name_right']) 
     # elinamate left-right mirror
@@ -92,7 +92,11 @@ def process_data(data):
     # Merge same shipper entity of different names
     shipper_matching = match_shipper()
     shipper_matching = shipper_matching[['cl_shipper_party_name_left','cl_shipper_set_master']].copy()
-    shipper_matching['cl_shipper_set_master'] = shipper_matching['cl_shipper_set_master'].apply(lambda x: frozenset(x))
+    shipper_matching['cl_shipper_set_master'] = shipper_matching['cl_shipper_set_master'].apply(lambda x: str(frozenset(x))[10:-1])
+    def combine_master(shipper,master):
+        return shipper if pd.isnull(master) else master
+    combine_master_vectorize = np.vectorize(combine_master)
+    shipper_matching['cl_shipper_set_master'] = combine_master_vectorize(shipper_matching['cl_shipper_party_name'],shipper_matching['cl_shipper_set_master'])
     shipper_matching = shipper_matching.rename(columns={'cl_shipper_party_name_left':'cl_shipper_party_name'})
     data = data.merge(shipper_matching,on='cl_shipper_party_name')
     return data
