@@ -85,7 +85,7 @@ def process_data(data):
     data = data.dropna(subset=['shipper_party_name','harmonized_number'])
     replace_char = ",.+=_-><\'\":;()!?~/\\@#$%^&*~`[]{}"
     replace_dict = {key:value for (key,value) in zip(replace_char,itertools.repeat(''))}
-    data['cl_shipper_party_name'] = data['shipper_party_name'].str.translate(str.maketrans(replace_dict)).values
+    data['cl_shipper_party_name'] = data['shipper_party_name'].str.translate(str.maketrans(replace_dict)).copy()
     data = data.assign(shipper_id=(data['cl_shipper_party_name']).astype('category').cat.codes)
     data['6_harmonized_number'] = data['harmonized_number'].apply(lambda x: str(x)[0:6])
     
@@ -94,7 +94,7 @@ def process_data(data):
     shipper_matching = shipper_matching[['cl_shipper_party_name_left','cl_shipper_set_master']].copy()
     shipper_matching['cl_shipper_set_master'] = shipper_matching['cl_shipper_set_master'].apply(lambda x: frozenset(x))
     shipper_matching = shipper_matching.rename(columns={'cl_shipper_party_name_left':'cl_shipper_party_name'})
-    data = data.merge(on='cl_shipper_party_name')
+    data = data.merge(shipper_matching,on='cl_shipper_party_name')
     return data
 
 def create_BoW_harmonized_shipper(data):
