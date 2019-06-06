@@ -96,9 +96,9 @@ def process_data(data):
     def combine_master(shipper,master):
         return shipper if pd.isnull(master) else master
     combine_master_vectorize = np.vectorize(combine_master)
-    shipper_matching['cl_shipper_set_master'] = combine_master_vectorize(shipper_matching['cl_shipper_party_name'],shipper_matching['cl_shipper_set_master'])
     shipper_matching = shipper_matching.rename(columns={'cl_shipper_party_name_left':'cl_shipper_party_name'})
     data = data.merge(shipper_matching,on='cl_shipper_party_name')
+    data['cl_shipper_set_master'] = combine_master_vectorize(data['cl_shipper_party_name'],data['cl_shipper_set_master'])
     return data
 
 def create_BoW_harmonized_shipper(data):
