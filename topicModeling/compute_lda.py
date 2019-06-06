@@ -54,7 +54,7 @@ def shipper_frozenset(col1,col2):
 def shipper_set(col1,col2):
     return {col1,col2}
 
-def shipper_matching():
+def match_shipper():
     def create_set_master(master_left,master_right):
         if not master_left.isdisjoint(master_right):
             new_master = master_left.union(master_right)
@@ -90,7 +90,7 @@ def process_data(data):
     data['6_harmonized_number'] = data['harmonized_number'].apply(lambda x: str(x)[0:6])
     
     # Merge same shipper entity of different names
-    shipper_matching = shipper_matching()
+    shipper_matching = match_shipper()
     shipper_matching = shipper_matching['cl_shipper_party_name_left','cl_shipper_set_master']
     shipper_matching['cl_shipper_set_master'] = shipper_matching['cl_shipper_set_master'].apply(lambda x: frozenset(x))
     shipper_matching = shipper_matching.rename(columns={'cl_shipper_party_name_left':'cl_shipper_party_name'})
