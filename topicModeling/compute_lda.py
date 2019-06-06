@@ -48,21 +48,61 @@ def read_data(file_name='BofL6country.zip',is_zip=True,from_http=False):
         data= pd.read_csv(path,usecols=usecols,dtype=dtype,parse_dates=parse_dates)
     return data
 
+def shipper_frozenset(col1,col2):
+    return frozenset([col1,col2])
+
+def shipper_set(col1,col2):
+    return {col1,col2}
+
+def shipper_matching():
+    def create_set_master(master_left,master_right):
+        if not master_left.isdisjoint(master_right):
+            new_master = master_left.union(master_right)
+        else:
+            new_master = master_left
+        return new_master
+    shipper_matching = pd.read_csv(get_match_result_directory() / 'Enigma_Enigma_6countries.csv')
+    shipper_matching  = shipper_matching[(shipper_matching['name_score']>0.9) | (shipper_matching['address_score']>0.6)]
+    shipper_frozenset_vectorize = np.vectorize(shipper_frozenset)
+    shipper_matching['cl_shipper_frozenset'] = shipper_frozenset_vectorize(shipper_matching['cl_shipper_party_name_left'],shipper_matching['cl_shipper_party_name_right']) 
+    # elinamate left-right mirror
+    shipper_matching = shipper_matching.drop_duplicates(subset='cl_shipper_frozenset')
+    shipper_set_vectorize = np.vectorize(shipper_set)
+    create_set_master_vectorize = np.vectorize(create_set_master)
+    shipper_matching['cl_shipper_set'] = shipper_set_vectorize(shipper_matching['cl_shipper_party_name_left'].values,shipper_matching['cl_shipper_party_name_right'].values)
+    shipper_matching['cl_shipper_set_master'] = shipper_matching['cl_shipper_set'].copy()
+    shipper_matching_copy = shipper_matching.copy()
+
+    shift_steps = [i for i in range(len(shipper_matching))]
+    for step in shift_steps:
+        #shipper_matching = pd.DataFrame(np.roll(shipper_matching,step,axis=0),columns=shipper_matching.columns).join(shipper_matching_copy['cl_shipper_set'],rsuffix='_right')
+        shipper_matching['cl_shipper_set_right'] = np.roll(shipper_matching_copy['cl_shipper_set'],step)
+        shipper_matching['cl_shipper_set_master'] = create_set_master_vectorize(shipper_matching['cl_shipper_set_master'].values,shipper_matching['cl_shipper_set_right'].values)
+    return shipper_matching
+
 def process_data(data):
+    # Basic data cleaning
     data = data.dropna(subset=['shipper_party_name','harmonized_number'])
     replace_char = ",.+=_-><\'\":;()!?~/\\@#$%^&*~`[]{}"
     replace_dict = {key:value for (key,value) in zip(replace_char,itertools.repeat(''))}
     data['cl_shipper_party_name'] = data['shipper_party_name'].str.translate(str.maketrans(replace_dict)).values
     data = data.assign(shipper_id=(data['cl_shipper_party_name']).astype('category').cat.codes)
     data['6_harmonized_number'] = data['harmonized_number'].apply(lambda x: str(x)[0:6])
+    
+    # Merge same shipper entity of different names
+    shipper_matching = shipper_matching()
+    shipper_matching = shipper_matching['cl_shipper_party_name_left','cl_shipper_set_master']
+    shipper_matching['cl_shipper_set_master'] = shipper_matching['cl_shipper_set_master'].apply(lambda x: frozenset(x))
+    shipper_matching = shipper_matching.rename(columns={'cl_shipper_party_name_left':'cl_shipper_party_name'})
+    data = data.merge(on='cl_shipper_party_name')
     return data
 
 def create_BoW_harmonized_shipper(data):
-    bag_of_words = data.groupby(by=['6_harmonized_number','cl_shipper_party_name']).size().unstack(fill_value=0)
+    bag_of_words = data.groupby(by=['6_harmonized_number','cl_shipper_set_master']).size().unstack(fill_value=0)
     return bag_of_words
 
 def create_BoW_shipper_harmonized(data):
-    bag_of_words = data.groupby(by=['cl_shipper_party_name','6_harmonized_number']).size().unstack(fill_value=0)
+    bag_of_words = data.groupby(by=['cl_shipper_set_master','6_harmonized_number']).size().unstack(fill_value=0)
     return bag_of_words
 
 def create_corpus(bag_of_words,corpus_save_name,save=True):
