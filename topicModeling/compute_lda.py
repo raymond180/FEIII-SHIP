@@ -97,7 +97,7 @@ def process_data(data):
         return shipper if pd.isnull(master) else master
     combine_master_vectorize = np.vectorize(combine_master)
     shipper_matching = shipper_matching.rename(columns={'cl_shipper_party_name_left':'cl_shipper_party_name'})
-    data = data.merge(shipper_matching,on='cl_shipper_party_name')
+    data = data.merge(shipper_matching,on='cl_shipper_party_name',how='left')
     data['cl_shipper_set_master'] = combine_master_vectorize(data['cl_shipper_party_name'],data['cl_shipper_set_master'])
     return data
 
