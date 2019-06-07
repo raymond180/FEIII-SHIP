@@ -3,18 +3,18 @@
 source activate topicModeling
 cd ~/Research/FEIII-SHIP/topicModeling/
 
-python compute_lda.py 0 'BofL6country.zip' harmonized_shipper 5
-python compute_lda.py 0 'BofL6country.zip' harmonized_shipper 15
-python compute_lda.py 0 'BofL6country.zip' harmonized_shipper 25
+python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" harmonized_shipper_sym 10 
+python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" harmonized_shipper_sym 20 
+python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" harmonized_shipper_sym 30 
 
-python compute_lda.py 0 'BofL6country.zip' shipper_harmonized 5
-python compute_lda.py 0 'BofL6country.zip' shipper_harmonized 15
-python compute_lda.py 0 'BofL6country.zip' shipper_harmonized 25
+python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" shipper_harmonized_sym 10 
+python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" shipper_harmonized_sym 20 
+python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" shipper_harmonized_sym 30 
 
-python lda_analysis.py harmonized_shipper 5
-python lda_analysis.py harmonized_shipper 15
-python lda_analysis.py harmonized_shipper 25
+python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" harmonized_shipper_asym 10 
+python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" harmonized_shipper_asym 20 
+python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" harmonized_shipper_asym 30 
 
-python lda_analysis.py shipper_harmonized 5
-python lda_analysis.py shipper_harmonized 15
-python lda_analysis.py shipper_harmonized 25
+python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" shipper_harmonized_asym 10 
+python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" shipper_harmonized_asym 20 
+python ~/FEIII-SHIP/topicModeling/compute_lda.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BofL6country.zip" shipper_harmonized_asym 30 
