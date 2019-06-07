@@ -13,8 +13,8 @@ def get_Enigma():
     return pd.read_csv('../Data/Dataset/BofL6country.zip',usecols=usecols,dtype=dtype,compression='zip')
 
 def get_Data(url):
-    usecols = ['identifier','shipper_party_name', 'shipper_address','harmonized_number']
-    dtype = {'identifier':str,'shipper_party_name':str,'shipper_address':str,'harmonized_number':str}
+    usecols = ['shipper_party_name', 'shipper_address']
+    dtype = {'shipper_party_name':str,'shipper_address':str}
     return pd.read_csv(url,usecols=usecols,dtype=dtype,compression='zip')
 
 def apply_ratio(col1,col2):
@@ -26,6 +26,7 @@ def apply_ratio(col1,col2):
 def multiprocess_apply_ratio(Enigma,step):
     #apply_distance_vectorize = np.vectorize(apply_distance)
     apply_ratio_vectorize = np.vectorize(apply_ratio)
+    #EnigmaL_join_EnigmaR = pd.DataFrame(np.roll(Enigma,step,axis=0),columns=Enigma.columns).join(Enigma,lsuffix='_left',rsuffix='_right')
     EnigmaL_join_EnigmaR = pd.DataFrame(np.roll(Enigma,step,axis=0),columns=Enigma.columns).join(Enigma,lsuffix='_left',rsuffix='_right')
     EnigmaL_join_EnigmaR['name_score'] = apply_ratio_vectorize(EnigmaL_join_EnigmaR['cl_shipper_party_name_left'].values,EnigmaL_join_EnigmaR['cl_shipper_party_name_right'].values)
     EnigmaL_join_EnigmaR['address_score'] = apply_ratio_vectorize(EnigmaL_join_EnigmaR['shipper_address_left'].values,EnigmaL_join_EnigmaR['shipper_address_right'].values)
@@ -37,8 +38,8 @@ def multiprocess_apply_ratio(Enigma,step):
 def match_by_levenshtein(start_index,end_index,file_name):
     print('getting shipper data...')
     #Enigma = get_Enigma()
-    Enigma = get_Data("https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BillofLadingSummary-2017.zip")
-    Enigma = Enigma.append(get_Data("https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BillofLadingSummary-2018.zip"),ignore_index=True)
+    Enigma = get_Data("https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BillofLadingSummary-2018.zip")
+    #Enigma = Enigma.append(get_Data("https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BillofLadingSummary-2018.zip"),ignore_index=True)
     #Enigma = Enigma.rename(columns={'company_name':'E_com_name','company_address':'E_com_address'})
     Enigma = Enigma.dropna(subset=['shipper_party_name'])
     Enigma = Enigma.reset_index(drop=True)
@@ -61,8 +62,10 @@ def match_by_levenshtein(start_index,end_index,file_name):
     result = pd.concat(pool_outputs,ignore_index=True)
     result = result.sort_values(by=['cl_shipper_party_name_left','name_score'])
     
-    columns_left = ['identifier_left','shipper_party_name_left','cl_shipper_party_name_left', 'shipper_address_left','harmonized_number_left'] 
-    columns_right = ['identifier_right','shipper_party_name_right','cl_shipper_party_name_right', 'shipper_address_right','harmonized_number_right']
+    #columns_left = ['identifier_left','shipper_party_name_left','cl_shipper_party_name_left', 'shipper_address_left','harmonized_number_left'] 
+    #columns_right = ['identifier_right','shipper_party_name_right','cl_shipper_party_name_right', 'shipper_address_right','harmonized_number_right']
+    columns_left = ['shipper_party_name_left','cl_shipper_party_name_left', 'shipper_address_left'] 
+    columns_right = ['shipper_party_name_right','cl_shipper_party_name_right', 'shipper_address_right']
     # zip the columns
     columns = ['name_score','address_score'] + [i for j in zip(columns_left,columns_right) for i in j]
     result = result[columns]
