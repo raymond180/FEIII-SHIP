@@ -61,8 +61,8 @@ def match_shipper():
         else:
             new_master = master_left
         return new_master
-    shipper_matching = pd.read_csv(get_match_result_directory() / 'Enigma_Enigma_6countries.csv')
-    shipper_matching  = shipper_matching[((shipper_matching['name_score']>0.9) & (shipper_matching['address_score']>0.6)) | (shipper_matching['address_score']>0.9)]
+    shipper_matching = pd.read_csv(get_match_result_directory() / 'Enigma_Enigma_2018.csv')
+    shipper_matching  = shipper_matching[((shipper_matching['name_score']>0.9) & (shipper_matching['address_score']>0.6)) | (shipper_matching['address_score']>0.8)]
     shipper_frozenset_vectorize = np.vectorize(shipper_frozenset)
     shipper_matching['cl_shipper_frozenset'] = shipper_frozenset_vectorize(shipper_matching['cl_shipper_party_name_left'],shipper_matching['cl_shipper_party_name_right']) 
     # elinamate left-right mirror
