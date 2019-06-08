@@ -74,7 +74,7 @@ def match_shipper():
     shipper_matching['cl_shipper_set_master'] = shipper_matching['cl_shipper_set'].copy()
     shipper_matching_copy = shipper_matching.copy()
 
-    shift_steps = [i for i in range(len(shipper_matching)+1)]
+    shift_steps = [i for i in range(len(shipper_matching)*2+2)]
     for step in shift_steps:
         #shipper_matching = pd.DataFrame(np.roll(shipper_matching,step,axis=0),columns=shipper_matching.columns).join(shipper_matching_copy['cl_shipper_set'],rsuffix='_right')
         shipper_matching['cl_shipper_set_right'] = np.roll(shipper_matching_copy['cl_shipper_set'],step)
