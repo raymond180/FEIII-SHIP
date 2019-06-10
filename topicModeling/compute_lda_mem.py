@@ -227,6 +227,7 @@ def main():
     file_name= str(sys.argv[2])
     data = read_data(file_name=file_name,from_http=from_http)
     data = process_data(data)
+    pd.to_csv(get_dataset_directory() / "2018_processed_data.zip" , compression="zip")
     save_name = str(sys.argv[3])
     if save_name == '2018_harmonized_shipper_sym':
         bag_of_words = create_BoW_harmonized_shipper(data)

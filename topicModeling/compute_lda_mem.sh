@@ -12,7 +12,7 @@
 
 source ~/miniconda3/bin/activate
 
-srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/topicModeling/compute_lda_mem.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BillofLadingSummary-2018.zip" 2018_harmonized_shipper_sym 50 &
+srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/topicModeling/compute_lda_mem.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BillofLadingSummary-2018.zip" 2018_shipper_harmonized_sym 50 &
 
 #srun --nodes=1 --ntasks=1 --exclusive python ~/FEIII-SHIP/topicModeling/compute_lda_mem.py 1 "https://obj.umiacs.umd.edu/feiiiship/Data/Dataset/BillofLadingSummary-2018.zip" 2018_shipper_harmonized_sym 50 &
 
